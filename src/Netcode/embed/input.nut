@@ -20,6 +20,9 @@ function CreateSystemInputDevice( device_id )
 		devmap.b6 = ::setting.binds.hide_ui;//'
 		devmap.b7 = ::setting.binds.step_frame;//1
 		devmap.b8 = ::setting.binds.step_toggle;//2
+		devmap.b9 = 59;//F1 Save State
+		devmap.b10 = 1; //escape
+		devmap.b11 = 60;//F2 Load State
 		local device_tmp_local0 = ::manbow.InputSingle();
 		device_tmp_local0.SetDeviceAssign(devmap);
 		devmap.b0 = 28;
@@ -225,6 +228,16 @@ for( local i = 0; i < ::manbow.GetJoyNum(); i++ )
 ::input_all <- ::manbow.InputMulti();
 this.input_all.Append(::input_key);
 this.input_all.Append(::input_joy_all);
+
+// Takeover: F3/F4 detection for P1/P2 takeover
+::input_f3_f4 <- ::manbow.InputSingle();
+local devmap_f3_f4 = ::manbow.DeviceMapping();
+devmap_f3_f4.device = -1;
+devmap_f3_f4.b0 = 61; // F3 -> b0
+devmap_f3_f4.b1 = 62; // F4 -> b1
+::input_f3_f4.SetDeviceAssign(devmap_f3_f4);
+::input_all.Append(::input_f3_f4);
+
 ::input_function <- ::manbow.InputSingle();
 local devmap = ::manbow.DeviceMapping();
 devmap.device = -1;

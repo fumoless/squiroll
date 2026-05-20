@@ -35,6 +35,60 @@ namespace fs = std::filesystem;
 
 const KiteSquirrelAPI* KITE;
 
+// TAKEOVER: RNG save/load for state synchronization
+struct ACRTThreadData {
+    char padding1[0x24];
+    uint32_t rand_state;
+};
+
+typedef ACRTThreadData* (__stdcall *acrt_getptd_func_ptr)();
+
+static uintptr_t GetBaseAddress() {
+    return (uintptr_t)GetModuleHandle(NULL);
+}
+
+#define acrt_getptd ((acrt_getptd_func_ptr)(GetBaseAddress() + 0x319663))
+
+static uint32_t g_SavedRNGSeed = 0;
+
+SQInteger Native_SaveRNG(HSQUIRRELVM v) {
+    if (!acrt_getptd) {
+        log_printf("[Takeover] Error: Function pointer is null!\n");
+        return 0;
+    }
+
+    ACRTThreadData* threadData = NULL;
+    try {
+        threadData = acrt_getptd();
+    } catch (...) {
+        log_printf("[Takeover] CRASH AVOIDED: Call to acrt_getptd failed.\n");
+        return 0;
+    }
+
+    if (threadData) {
+        if (IsBadReadPtr(threadData, sizeof(ACRTThreadData))) {
+             log_printf("[Takeover] CRASH AVOIDED: threadData pointer is garbage (%p)\n", threadData);
+             return 0;
+        }
+
+        g_SavedRNGSeed = threadData->rand_state;
+        log_printf("[Takeover] Saved RNG Seed: %u\n", g_SavedRNGSeed);
+    } else {
+        log_printf("[Takeover] Error: threadData is null\n");
+    }
+    return 0;
+}
+
+SQInteger Native_LoadRNG(HSQUIRRELVM v) {
+    ACRTThreadData* threadData = acrt_getptd();
+    if (threadData) {
+        threadData->rand_state = g_SavedRNGSeed;
+        log_printf("[Takeover] Loaded RNG Seed: %u\n", g_SavedRNGSeed);
+    }
+    return 0;
+}
+// END TAKEOVER
+
 struct HostEnvironment;
 
 typedef int thisfastcall get_value_t(
@@ -699,9 +753,12 @@ extern "C" {
 					return 1;
 				});
 				sq_setfunc(v, _SC("getactors"), [](HSQUIRRELVM v) -> SQInteger {
-						
+
 					return 1;
 				});
+				// TAKEOVER: RNG save/load
+				sq_setfunc(v, _SC("save_rng"), Native_SaveRNG);
+				sq_setfunc(v, _SC("load_rng"), Native_LoadRNG);
             });
 
             sq_createtable(v, _SC("punch"), [](HSQUIRRELVM v) {

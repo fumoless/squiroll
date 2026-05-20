@@ -173,6 +173,35 @@ static constexpr uint8_t network_config_nut[] = {
 #embed "embed/config/network_config.nut"
 };
 
+// TAKEOVER
+static constexpr uint8_t takeover_nut[] = {
+#embed "embed/takeover/takeover.nut"
+};
+
+static constexpr uint8_t takeover_bystate_nut[] = {
+#embed "embed/takeover/takeover_bystate.nut"
+};
+
+static constexpr uint8_t pause_nut[] = {
+#embed "embed/takeover/pause.nut"
+};
+
+static constexpr uint8_t pause_animation_nut[] = {
+#embed "embed/takeover/pause_animation.nut"
+};
+
+static constexpr uint8_t replay_select_nut[] = {
+#embed "embed/takeover/replay_select.nut"
+};
+
+static constexpr uint8_t battle_replay_nut[] = {
+#embed "embed/takeover/battle_replay.nut"
+};
+
+static constexpr uint8_t player_common_move_nut[] = {
+#embed "embed/takeover/player_common_move.nut"
+};
+
 static const std::unordered_map<std::string_view, const EmbedData> embeds = {
     //REPLACEMENTS
     {"data/system/network/network.nut"sv, network_nut},
@@ -215,6 +244,14 @@ static const std::unordered_map<std::string_view, const EmbedData> embeds = {
     {"squiroll/UI/ui.nut"sv, UI_nut},
     {"squiroll/config/mod_config.nut"sv, mod_config_nut},
     {"squiroll/config/network_config.nut"sv, network_config_nut},
+    //TAKEOVER
+    {"squiroll/takeover/takeover.nut"sv, takeover_nut},
+    {"squiroll/takeover/takeover_bystate.nut"sv, takeover_bystate_nut},
+    {"squiroll/takeover/pause.nut"sv, pause_nut},
+    {"squiroll/takeover/pause_animation.nut"sv, pause_animation_nut},
+    {"squiroll/takeover/replay_select.nut"sv, replay_select_nut},
+    {"squiroll/takeover/battle_replay.nut"sv, battle_replay_nut},
+    {"squiroll/takeover/player_common_move.nut"sv, player_common_move_nut},
 };
 
 EmbedData get_embed_data(const char* name) {
